@@ -1,10 +1,10 @@
 ; check ALU instructions
-    
-	ADD R0, R0, R2
 
-    .ORIG x3000
+    ADD R0, R0, R2
 
-Label    
+    .ORIG x3001
+
+Label
     AND R0, R0, #0
     ADD R0, R0, #5      ; R0: 0x0005
     ADD R1, R0, #-10    ; R1: 0xFFF6
@@ -25,6 +25,8 @@ GETCH
     LSHF R6, R5, #11    ; R6: 0x8000
     RSHFA R6, R6, #7    ; R6: 0xFF00
     XOR R0, R6, R2      ; R0: 0x00FF
+    ADD R4
+    ADD R4, R4
     BX LR
 
     HALT

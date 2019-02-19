@@ -22,6 +22,7 @@ class ParseMixins:
         InvalidRegisterException
             Register is not R0-R7
         """
+        assert val != '', InsufficientOperandsException()
         assert val[0] == 'R', InvalidRegisterException(val)
         try:
             x = int(val[1:])
@@ -55,6 +56,7 @@ class ParseMixins:
         OffsetTooLargeException
             Instruction too far after PC to fit
         """
+        assert val != '', InsufficientOperandsException()
         assert val in self.table, UndefinedLabelException(val)
 
         off = (self.table[val] - self.address - 2) // 2
@@ -94,6 +96,8 @@ class ParseMixins:
         OffsetTooLargeException
             Offset larger than integer min value
         """
+
+        assert val != '', InsufficientOperandsException()
 
         # Parse value
         if val[0] == '#':
