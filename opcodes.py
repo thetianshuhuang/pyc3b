@@ -1,4 +1,3 @@
-
 """Instruction opcode-operand formats
 
 Attributes

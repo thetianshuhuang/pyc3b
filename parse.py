@@ -1,8 +1,10 @@
+"""Operand parse mixins"""
 
 from exceptions import *
 
 
 class ParseMixins:
+    """Operand parse mixins"""
 
     def __reg(self, val):
         """Get register number
