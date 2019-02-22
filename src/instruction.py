@@ -10,9 +10,9 @@ Fetch output with Instruction.assembled
 import re
 from print import *
 
-from opcodes import OPCODES_FMT
-from parse import ParseMixins
-from exceptions import *
+from .opcodes import OPCODES_FMT
+from .parse import ParseMixins
+from .exceptions import *
 
 _ILLEGAL_LABELS = {
     r'$X(.*)': CannotStartWithXException,

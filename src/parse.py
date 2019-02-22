@@ -1,6 +1,6 @@
 """Operand parse mixins"""
 
-from exceptions import *
+from .exceptions import *
 
 
 class ParseMixins:
