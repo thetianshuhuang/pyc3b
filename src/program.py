@@ -77,16 +77,19 @@ class Program:
     def print_program(self):
         """Print assembled program"""
         print(
-            "Assembled Program\n"
+            "+----------------------------------{b}-+\n"
+            "| Assembled Program                {p} |\n"
             "{div}\n"
-            "| Line |  Addr  |  Code  |  Source {p} | Errors\n"
+            "| Line |  Addr  |  Code  |  Source {p} |{e}\n"
             "{div}\n"
             "{code}\n"
             "{div}\n\n"
             .format(
                 p=' ' * (self.maxwidth - 8),
+                b='-' * (self.maxwidth - 8),
                 div=self.__div,
-                code="\n".join(str(i) for i in self.instructions)))
+                code="\n".join(str(i) for i in self.instructions),
+                e=' Errors' if self.is_errored() else ''))
 
     def save_output(self, file):
         """Save output to file

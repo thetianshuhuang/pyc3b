@@ -15,8 +15,8 @@ from .parse import ParseMixins
 from .exceptions import *
 
 _ILLEGAL_LABELS = {
-    r'$X(.*)': CannotStartWithXException,
-    r'(IN)|(OUT)|(GETC)|(PUTS)': ReservedNameException,
+    r'^X(.*)': CannotStartWithXException,
+    r'^(IN)$|^(OUT)$|^(GETC)$|^(PUTS)$': ReservedNameException,
     r'[^A-Z0-9]': CharSetException,
 }
 
@@ -47,6 +47,8 @@ class Instruction(ParseMixins):
         args = re.sub(
             r'([,\s+]+)', ' ',
             re.sub(r'(([\s,]*);(.*))|\n', '', line.upper())).split(" ")
+        if args[0] in ['.END', '.ORIG', '.FILL']:
+            args = [''] + args
 
         self.address = None
         self.assembled = None
@@ -103,6 +105,8 @@ class Instruction(ParseMixins):
         # Check for illegal labels
         for regex, explanation in _ILLEGAL_LABELS.items():
             if re.search(regex, self.label):
+                print(self.label)
+                print(regex)
                 self.err.append(explanation(self.label))
 
         if self.label in self.table:

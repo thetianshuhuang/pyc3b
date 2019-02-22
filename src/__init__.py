@@ -1,4 +1,4 @@
 
-from .assemble import Program
+from .program import Program
 
 __all__ = ["Program"]
