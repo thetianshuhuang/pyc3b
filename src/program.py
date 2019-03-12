@@ -91,21 +91,25 @@ class Program:
                 code="\n".join(str(i) for i in self.instructions),
                 e=' Errors' if self.is_errored() else ''))
 
-    def save_output(self, file):
+    def save_output(self, file, silent=False):
         """Save output to file
 
         Parameters
         ----------
         file : str
             Output file
+        silent : bool
+            Supress status message?
         """
         with open(file, "w") as out:
             for i in self.instructions:
                 if i.assembled is not None:
                     out.write("0x{:04X}\n".format(i.assembled))
-        print(
-            "Saved output to {tgt}."
-            .format(tgt=os.path.basename(file)), BR + GREEN)
+
+        if not silent:
+            print(
+                "Saved output to {tgt}."
+                .format(tgt=os.path.basename(file)), BR + GREEN)
 
     def is_errored(self):
         """Check if program contains an error"""
