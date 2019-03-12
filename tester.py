@@ -3,10 +3,18 @@ r"""
     | |  / __|__ / |__  |_   _|__ __| |_ ___ _ _
     | |_| (__ |_ \ '_ \   | |/ -_|_-<  _/ -_) '_|
     |____\___|___/_.__/   |_|\___/__/\__\___|_|
-    UT Austin EE460N LC3b Clock-Level Simulator Test Engine
-    Tianshu Huang, Spring 2019
+    LC3b Clock-Level Simulator Test Engine
+    Tianshu Huang, Spring 2019 -- EE 460N @ UT Austin (Yale Patt)
 
 Usage : python tester.py [-flags]
+
+Test cases should be in the folder 'evil/' in the project directory:
+    evil/evil_alu.obj
+    evil/evil_jmp.obj
+    evil/evil_memory.obj
+    evil/evil_cc.obj
+The source simulator should be compiled to 'a.out'.
+The source microcode file should be named 'ucode3'.
 
 Flags
 -----
@@ -31,12 +39,20 @@ __HEADER = p.render(r"""
     | |  / __|__ / |__  |_   _|__ __| |_ ___ _ _
     | |_| (__ |_ \ '_ \   | |/ -_|_-<  _/ -_) '_|
     |____\___|___/_.__/   |_|\___/__/\__\___|_|
-    UT Austin EE460N LC3b Clock-Level Simulator Test Engine
-    Tianshu Huang, Spring 2019
+    LC3b Clock-Level Simulator Test Engine
+    Tianshu Huang, Spring 2019 -- EE 460N @ UT Austin (Yale Patt)
 """, p.BR + p.RED, p.BOLD)
 
 __HINT = """
 Usage : python tester.py [-flags]
+
+Test cases should be in the folder 'evil/' in the project directory:
+    evil/evil_alu.obj
+    evil/evil_jmp.obj
+    evil/evil_memory.obj
+    evil/evil_cc.obj
+The source simulator should be compiled to 'a.out'.
+The source microcode file should be named 'ucode3'.
 
 Flags
 -----

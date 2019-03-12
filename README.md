@@ -1,8 +1,8 @@
 # pyc3b
 
-Python PC3b Assembler
+Python LC3b Assembler
 
-![](https://github.com/thetianshuhuang/pyc3b/blob/master/wide.png)
+![](https://github.com/thetianshuhuang/pyc3b/blob/master/preview/assembler.png)
 
 ## Dependencies
 - Python 3
@@ -20,6 +20,31 @@ $ python assemble.py source [output] [-flags]
 ### Flags
 - ```-p```: Print out assembled files
 - ```-t```: Print out symbol table
+
+# lc3test
+
+Python LC3b Simulator test engine -- for EE460N Lab 2-6 (Yale Patt, UT Austin)
+
+![](https://github.com/thetianshuhuang/pyc3b/blob/master/preview/tester.png)
+
+## Dependencies
+- Python 3
+- [print](https://github.com/thetianshuhuang/print)
+
+## Usage
+1. Copy ```evil/``` to the simulator directory.
+2. Compile the simlulator to ```a.out```.
+3. Use the modified ```__header__.h``` instead of the provided one; a ```#DEBUG_MODE``` flag has been added that should be enabled in order to interface with the test engine. [ctp](https://github.com/thetianshuhuang/ctp) is recommended in order to manage source files.
+4. Run the tester:
+```shell
+$ python tester.py [-flags]
+```
+
+## Flags:
+- ```-c```, ```--csv```: Format output as CSV
+- ```--all```: Run all tests
+- ```--alu```, ```--cc```, ```--jmp```, ```--memory```: Run specific test case
+
 
 ## Sample Session
 ```
