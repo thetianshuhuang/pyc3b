@@ -1,3 +1,11 @@
+"""
+   _    ___ _____            ___ ___ _ _   __  __  _  _
+  | |  / __|__ / |__   ___  | __| __| | | / / /  \| \| |
+  | |_| (__ |_ \ '_ \ |___| | _|| _||_  _/ _ \ () | .` |
+  |____\___|___/_.__/       |___|___| |_|\___/\__/|_|\_|
+"""
+
+
 import subprocess
 import sys
 import collections
@@ -106,7 +114,7 @@ class Evil:
 
         line_idx = 0
         for i in self.result:
-            if i.state == 18:
+            if i.state in [18, 19]:
                 ins = self.__get_ins(i.pc)
                 p.print(
                     "-{ln:03}-  pc: 0x{pc:04X}  "
