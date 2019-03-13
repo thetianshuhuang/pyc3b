@@ -18,7 +18,7 @@ The source microcode file should be named 'ucode3'.
 
 Flags
 -----
--c / --csv
+--csv
     Use CSV output instead (echos to stdout -- must pipe)
 --alu, --cc, --memory, --jmp, --all
     Only run the specified test case
@@ -73,7 +73,7 @@ def test(e):
         cmd="./{} {} {}".format(_EXEC_TARGET, _UCODE_FILE, _OBJ_TMP_FILE),
         tmpfile=_OBJ_TMP_FILE)
 
-    if p.argparse.is_flag('c') or p.argparse.is_flag('csv'):
+    if p.argparse.is_flag('csv'):
         t.csv()
     else:
         t.print()
@@ -82,7 +82,7 @@ def test(e):
 if __name__ == '__main__':
 
     # Don't print header if CSV output is selected
-    if not (p.argparse.is_flag('csv') or p.argparse.is_flag('c')):
+    if not p.argparse.is_flag('csv'):
         p.print(__HEADER)
 
     # Run all tests

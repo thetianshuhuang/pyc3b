@@ -42,7 +42,7 @@ class Instruction(ParseMixins):
         self.maxwidth = maxwidth
         self.linenum = linenum
 
-        self.raw = line.strip('\n')
+        self.raw = line.strip('\n').lstrip()
 
         args = re.sub(
             r'([,\s+]+)', ' ',
