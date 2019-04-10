@@ -86,15 +86,21 @@ class TestCase:
         line_idx = 0
         for i in self.result:
             if i.state in [18, 19]:
-                ins = self.__get_ins(i.pc)
-                p.print(
-                    _STDOUT_ASM_HEADER.format(
-                        ln=ins.linenum,
-                        pc=ins.address,
-                        ir=ins.assembled,
-                        op=ins.opcode,
-                        raw=ins.raw),
-                    p.BOLD, p.BR + p.BLUE)
+                try:
+                    ins = self.__get_ins(i.pc)
+                    p.print(
+                        _STDOUT_ASM_HEADER.format(
+                            ln=ins.linenum,
+                            pc=ins.address,
+                            ir=ins.assembled,
+                            op=ins.opcode,
+                            raw=ins.raw),
+                        p.BOLD, p.BR + p.BLUE)
+                except Exception as e:
+                    p.print(
+                        "Could not find instruction. Is this instruction in "
+                        "the target assembly file?",
+                        p.BOLD, p.BR + p.BLACK)
             print(i.str_color())
 
     def csv(self):
