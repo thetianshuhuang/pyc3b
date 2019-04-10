@@ -28,11 +28,24 @@ import sys
 import print as p
 from src import TestCase
 
-_SRC_PATH = "evil/evil_{}.asm"
+# General
 _EXEC_TARGET = "a.out"
-_UCODE_FILE = "ucode3"
-_TEST_CASES = ['alu', 'jmp', 'memory', 'cc']
 _OBJ_TMP_FILE = "__tmp__.obj"
+
+# Lab 3
+_UCODE_FILE_3 = "ucode3"
+_SRC_PATH = "evil/evil_{}.asm"
+_TEST_CASES = ['alu', 'jmp', 'memory', 'cc']
+
+# Lab 4
+_UCODE_FILE_4 = "ucode4"
+_DATA_FILE = "data.obj"
+_TIMER_INT = "int.obj"
+_PROT_EXC = "except_prot.obj"
+_UNALIGNED_EXC = "except_unaligned.obj"
+_UNKNOWN_EXC = "except_unknown.obj"
+_VECTOR_TABLE = "vector_table.obj"
+
 
 __HEADER = p.render(r"""
      _    ___ _____      _____       _
@@ -64,13 +77,26 @@ Flags
 """
 
 
-def test(e):
+def test(e, lab=4):
     """Run test case"""
+
+    if lab == 3:
+        cmd = "./{} {} {}".format(
+            _EXEC_TARGET, _UCODE_FILE_4, _OBJ_TMP_FILE)
+    elif lab == 4:
+        cmd = "./" + " ".join([
+            _EXEC_TARGET, _UCODE_FILE_4, _OBJ_TMP_FILE,
+            _DATA_FILE,
+            _VECTOR_TABLE,
+            _TIMER_INT,
+            _PROT_EXC,
+            _UNALIGNED_EXC,
+            _UNKNOWN_EXC])
 
     t = TestCase(
         name=e,
         tgt=_SRC_PATH.format(evil),
-        cmd="./{} {} {}".format(_EXEC_TARGET, _UCODE_FILE, _OBJ_TMP_FILE),
+        cmd=cmd,
         tmpfile=_OBJ_TMP_FILE)
 
     if p.argparse.is_flag('csv'):
@@ -85,16 +111,23 @@ if __name__ == '__main__':
     if not p.argparse.is_flag('csv'):
         p.print(__HEADER)
 
+    if p.argparse.is_flag('3'):
+        lab = 3
+    elif p.argparse.is_flag('4'):
+        lab = 4
+    else:
+        lab = 3
+
     # Run all tests
     if p.argparse.is_flag('all'):
         for evil in _TEST_CASES:
-            test(evil)
+            test(evil, lab=lab)
         exit(0)
 
     # Run single test
     for evil in _TEST_CASES:
         if p.argparse.is_flag(evil):
-            test(evil)
+            test(evil, lab=lab)
             exit(0)
 
     # not exited yet -> no test specified

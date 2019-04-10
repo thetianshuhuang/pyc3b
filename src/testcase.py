@@ -13,6 +13,7 @@ import print as p
 _STDOUT_HEADER = """
 
        [evil_{}]
+       {}
 """
 _STDOUT_ASM_HEADER = (
     "-{ln:03}-  pc: 0x{pc:04X}  ir: 0x{ir:04X}  src: \"{raw}\"")
@@ -65,6 +66,7 @@ class TestCase:
         self.src.save_output(tmpfile, silent=True)
 
         # Run target
+        self.cmd = cmd
         output = subprocess.check_output(
             cmd, shell=True).decode('utf-8').split('\n\n\n')[1:]
 
@@ -79,7 +81,7 @@ class TestCase:
     def print(self):
         """Print test case output to stdout"""
 
-        print(_STDOUT_HEADER.format(self.name))
+        print(_STDOUT_HEADER.format(self.name, self.cmd))
 
         line_idx = 0
         for i in self.result:
