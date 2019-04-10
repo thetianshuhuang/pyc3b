@@ -45,6 +45,7 @@ _PROT_EXC = "except_prot.obj"
 _UNALIGNED_EXC = "except_unaligned.obj"
 _UNKNOWN_EXC = "except_unknown.obj"
 _VECTOR_TABLE = "vector_table.obj"
+_TEST_CASES_4 = ['add']
 
 
 __HEADER = p.render(r"""
@@ -83,6 +84,7 @@ def test(e, lab=4):
     if lab == 3:
         cmd = "./{} {} {}".format(
             _EXEC_TARGET, _UCODE_FILE_4, _OBJ_TMP_FILE)
+        tgt = _SRC_PATH.format(evil)
     elif lab == 4:
         cmd = "./" + " ".join([
             _EXEC_TARGET, _UCODE_FILE_4, _OBJ_TMP_FILE,
@@ -92,12 +94,12 @@ def test(e, lab=4):
             _PROT_EXC,
             _UNALIGNED_EXC,
             _UNKNOWN_EXC])
+        if p.argparse.is_flag('add'):
+            tgt = "add.asm"
+        else:
+            tgt = _SRC_PATH.format(evil)
 
-    t = TestCase(
-        name=e,
-        tgt=_SRC_PATH.format(evil),
-        cmd=cmd,
-        tmpfile=_OBJ_TMP_FILE)
+    t = TestCase(name=e, tgt=tgt, cmd=cmd, tmpfile=_OBJ_TMP_FILE)
 
     if p.argparse.is_flag('csv'):
         t.csv()
@@ -125,7 +127,7 @@ if __name__ == '__main__':
         exit(0)
 
     # Run single test
-    for evil in _TEST_CASES:
+    for evil in _TEST_CASES + _TEST_CASES_4:
         if p.argparse.is_flag(evil):
             test(evil, lab=lab)
             exit(0)
