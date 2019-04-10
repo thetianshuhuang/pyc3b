@@ -39,6 +39,7 @@ _TEST_CASES = ['alu', 'jmp', 'memory', 'cc']
 
 # Lab 4
 _UCODE_FILE_4 = "ucode4"
+_SRC_PATH_4 = "evil4/{}"
 _DATA_FILE = "data.obj"
 _TIMER_INT = "int.obj"
 _PROT_EXC = "except_prot.obj"
@@ -86,16 +87,19 @@ def test(e, lab=4):
             _EXEC_TARGET, _UCODE_FILE_4, _OBJ_TMP_FILE)
         tgt = _SRC_PATH.format(evil)
     elif lab == 4:
-        cmd = "./" + " ".join([
-            _EXEC_TARGET, _UCODE_FILE_4, _OBJ_TMP_FILE,
+        srcs = [_SRC_PATH_4.format(s) for s in [
             _DATA_FILE,
             _VECTOR_TABLE,
             _TIMER_INT,
             _PROT_EXC,
             _UNALIGNED_EXC,
-            _UNKNOWN_EXC])
+            _UNKNOWN_EXC]]
+
+        cmd = "./" + " ".join(
+            [_EXEC_TARGET, _UCODE_FILE_4, _OBJ_TMP_FILE] + srcs)
+
         if p.argparse.is_flag('add'):
-            tgt = "add.asm"
+            tgt = "evil4/add.asm"
         else:
             tgt = _SRC_PATH.format(evil)
 
