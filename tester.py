@@ -57,12 +57,12 @@ _UCODE_FILE_5 = "ucode5"
 _SRC_PATH_5 = "evil5/{}"
 _DATA_FILE_5 = "data.obj"
 _TIMER_INT_5 = "int.obj"  # should trasverse PT, clear R bits
-_PROT_EXC_5 = "exception_prot.obj"
-_UNALIGNED_EXC_5 = "exception_unaligned.obj"
-_UNKNOWN_EXC_5 = "exception_unknown.obj"
-_PF_EXC_5 = "exception_pf.obj"
+_PROT_EXC_5 = "except_prot.obj"
+_UNALIGNED_EXC_5 = "except_unaligned.obj"
+_UNKNOWN_EXC_5 = "except_unknown.obj"
+_PF_EXC_5 = "except_page.obj"
 _VECTOR_TABLE_5 = "vector_table.obj"
-_PAGE_TABLE_5 = "pagetable.obj"
+_PAGE_TABLE_5 = "page_table.obj"
 _TEST_CASES_5 = ['add']
 
 
@@ -106,6 +106,44 @@ Command to use vanilla command-line tool:
 """
 
 
+def get_cmd_4():
+    srcs = [_SRC_PATH_4.format(s) for s in [
+        _DATA_FILE_4,
+        _VECTOR_TABLE_4,
+        _TIMER_INT_4,
+        _PROT_EXC_4,
+        _UNALIGNED_EXC_4,
+        _UNKNOWN_EXC_4
+    ]]
+
+    cmd = "./" + " ".join(
+        [_EXEC_TARGET, _UCODE_FILE_4, _OBJ_TMP_FILE] + srcs)
+
+    return cmd
+
+
+def get_cmd_5():
+    srcs = [_SRC_PATH_5.format(s) for s in [
+        _DATA_FILE_5,
+        _VECTOR_TABLE_5,
+        _TIMER_INT_5,
+        _PROT_EXC_5,
+        _UNALIGNED_EXC_5,
+        _UNKNOWN_EXC_5,
+        _PF_EXC_5,
+    ]]
+
+    cmd = "./" + " ".join(
+        [
+            _EXEC_TARGET,
+            _UCODE_FILE_5,
+            _SRC_PATH_5.format(_PAGE_TABLE_5),
+            _OBJ_TMP_FILE
+        ] + srcs)
+
+    return cmd
+
+
 def test(e, lab=4):
     """Run test case"""
 
@@ -115,17 +153,7 @@ def test(e, lab=4):
         tgt = _SRC_PATH.format(evil)
 
     elif lab == 4:
-        srcs = [_SRC_PATH_4.format(s) for s in [
-            _DATA_FILE_4,
-            _VECTOR_TABLE_4,
-            _TIMER_INT_4,
-            _PROT_EXC_4,
-            _UNALIGNED_EXC_4,
-            _UNKNOWN_EXC_4
-        ]]
-
-        cmd = "./" + " ".join(
-            [_EXEC_TARGET, _UCODE_FILE_4, _OBJ_TMP_FILE] + srcs)
+        cmd = get_cmd_4()
 
         if p.argparse.is_flag('add'):
             tgt = "evil4/add.asm"
@@ -133,19 +161,8 @@ def test(e, lab=4):
             tgt = _SRC_PATH.format(evil)
 
     elif lab == 5:
-        srcs = [_SRC_PATH_5.format(s) for s in [
-            _DATA_FILE_5,
-            _VECTOR_TABLE_5,
-            _TIMER_INT_5,
-            _PROT_EXC_5,
-            _UNALIGNED_EXC_5,
-            _UNKNOWN_EXC_5,
-            _PF_EXC_5,
-            _PAGE_TABLE_5
-        ]]
+        cmd = get_cmd_5()
 
-        cmd = "./" + " ".join(
-            [_EXEC_TARGET, _UCODE_FILE_5, _OBJ_TMP_FILE] + srcs)
         if p.argparse.is_flag('add'):
             tgt = "evil5/add.asm"
         else:
