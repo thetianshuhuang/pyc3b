@@ -18,10 +18,14 @@ The source microcode file should be named 'ucode3'.
 
 Flags
 -----
---csv
+-c / --csv
     Use CSV output instead (echos to stdout -- must pipe)
---alu, --cc, --memory, --jmp, --all
+--alu, --cc, --memory, --jmp, --add, --all
     Only run the specified test case
+-3, -4, -5:
+    Specify target lab
+--getcmd
+    Get command to use with vanilla tool instead of running the tester
 """
 
 import sys
@@ -40,13 +44,26 @@ _TEST_CASES = ['alu', 'jmp', 'memory', 'cc']
 # Lab 4
 _UCODE_FILE_4 = "ucode4"
 _SRC_PATH_4 = "evil4/{}"
-_DATA_FILE = "data.obj"
-_TIMER_INT = "int.obj"
-_PROT_EXC = "except_prot.obj"
-_UNALIGNED_EXC = "except_unaligned.obj"
-_UNKNOWN_EXC = "except_unknown.obj"
-_VECTOR_TABLE = "vector_table.obj"
+_DATA_FILE_4 = "data.obj"
+_TIMER_INT_4 = "int.obj"
+_PROT_EXC_4 = "except_prot.obj"
+_UNALIGNED_EXC_4 = "except_unaligned.obj"
+_UNKNOWN_EXC_4 = "except_unknown.obj"
+_VECTOR_TABLE_4 = "vector_table.obj"
 _TEST_CASES_4 = ['add']
+
+# lab 5
+_UCODE_FILE_5 = "ucode5"
+_SRC_PATH_5 = "evil5/{}"
+_DATA_FILE_5 = "data.obj"
+_TIMER_INT_5 = "int.obj"  # should trasverse PT, clear R bits
+_PROT_EXC_5 = "exception_prot.obj"
+_UNALIGNED_EXC_5 = "exception_unaligned.obj"
+_UNKNOWN_EXC_5 = "exception_unknown.obj"
+_PF_EXC_5 = "exception_pf.obj"
+_VECTOR_TABLE_5 = "vector_table.obj"
+_PAGE_TABLE_5 = "pagetable.obj"
+_TEST_CASES_5 = ['add']
 
 
 __HEADER = p.render(r"""
@@ -73,9 +90,19 @@ Flags
 -----
 -c / --csv
     Use CSV output instead (echos to stdout -- must pipe)
---alu, --cc, --memory, --jmp
+--alu, --cc, --memory, --jmp, --add, --all
     Only run the specified test case
+-3, -4, -5:
+    Specify target lab
+--getcmd
+    Get command to use with vanilla tool instead of running the tester
 
+"""
+
+__CMD_DISP = """
+Command to use vanilla command-line tool:
+
+{}
 """
 
 
@@ -86,14 +113,16 @@ def test(e, lab=4):
         cmd = "./{} {} {}".format(
             _EXEC_TARGET, _UCODE_FILE_4, _OBJ_TMP_FILE)
         tgt = _SRC_PATH.format(evil)
+
     elif lab == 4:
         srcs = [_SRC_PATH_4.format(s) for s in [
-            _DATA_FILE,
-            _VECTOR_TABLE,
-            _TIMER_INT,
-            _PROT_EXC,
-            _UNALIGNED_EXC,
-            _UNKNOWN_EXC]]
+            _DATA_FILE_4,
+            _VECTOR_TABLE_4,
+            _TIMER_INT_4,
+            _PROT_EXC_4,
+            _UNALIGNED_EXC_4,
+            _UNKNOWN_EXC_4
+        ]]
 
         cmd = "./" + " ".join(
             [_EXEC_TARGET, _UCODE_FILE_4, _OBJ_TMP_FILE] + srcs)
@@ -103,12 +132,35 @@ def test(e, lab=4):
         else:
             tgt = _SRC_PATH.format(evil)
 
-    t = TestCase(name=e, tgt=tgt, cmd=cmd, tmpfile=_OBJ_TMP_FILE)
+    elif lab == 5:
+        srcs = [_SRC_PATH_5.format(s) for s in [
+            _DATA_FILE_5,
+            _VECTOR_TABLE_5,
+            _TIMER_INT_5,
+            _PROT_EXC_5,
+            _UNALIGNED_EXC_5,
+            _UNKNOWN_EXC_5,
+            _PF_EXC_5,
+            _PAGE_TABLE_5
+        ]]
 
-    if p.argparse.is_flag('csv'):
-        t.csv()
+        cmd = "./" + " ".join(
+            [_EXEC_TARGET, _UCODE_FILE_5, _OBJ_TMP_FILE] + srcs)
+        if p.argparse.is_flag('add'):
+            tgt = "evil5/add.asm"
+        else:
+            tgt = _SRC_PATH.format(evil)
+
+    if p.argparse.is_flag('getcmd'):
+        print(__CMD_DISP.format(cmd))
+
     else:
-        t.print()
+        t = TestCase(name=e, tgt=tgt, cmd=cmd, tmpfile=_OBJ_TMP_FILE)
+
+        if p.argparse.is_flag('csv'):
+            t.csv()
+        else:
+            t.print()
 
 
 if __name__ == '__main__':
@@ -121,6 +173,8 @@ if __name__ == '__main__':
         lab = 3
     elif p.argparse.is_flag('4'):
         lab = 4
+    elif p.argparse.is_flag('5'):
+        lab = 5
     else:
         lab = 3
 
