@@ -57,6 +57,14 @@ class Rdump:
         """Initialize from string"""
 
         block = s.split('\n')
+        comments = []
+
+        for b in block:
+            if b[:1] == '#':
+                print(b)
+                comments.append(b)
+                block.remove(b)
+
         self.__init_dict(
             cycle=int(block[2].split(':')[1]),
             pc=as_hex(block[3]),
@@ -66,11 +74,12 @@ class Rdump:
             mdr=as_hex(block[8]),
             mar=as_hex(block[9]),
             cc=[x[-1] for x in(block[10].split(':')[1]).split('  ')],
-            registers=[as_hex(block[12 + i]) for i in range(8)])
+            registers=[as_hex(block[12 + i]) for i in range(8)],
+            comments=comments)
 
     def __init_dict(
             self, cycle=0, pc=0, ir=0, state=0, bus=0,
-            mdr=0, mar=0, cc=0, registers=0):
+            mdr=0, mar=0, cc=0, registers=0, comments=[]):
         """Initialize from dictionary (unpack before passing)"""
 
         self.cycle = cycle
@@ -82,6 +91,7 @@ class Rdump:
         self.mar = mar
         self.cc = cc
         self.registers = registers
+        self.comments = comments
 
     def __eq__(self, other):
         """__eq__ overloading to facilitate comparisons"""
@@ -108,9 +118,13 @@ class Rdump:
         prev = str(self.prev).split(' ')
         current = self.__str__().split(' ')
 
-        return ' '.join([
+        base = ' '.join([
             p.render(i, p.BR + p.GREEN, p.BOLD)
             if i != j else i for i, j in zip(current, prev)])
+
+        return '\n'.join(
+            [base] +
+            [p.render(c, p.BR + p.BLUE) for c in self.comments])
 
     def csv(self):
         """Get CSV output
