@@ -61,7 +61,6 @@ class Rdump:
 
         for b in block:
             if b[:1] == '#':
-                print(b)
                 comments.append(b)
                 block.remove(b)
 
