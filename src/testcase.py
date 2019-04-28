@@ -20,6 +20,10 @@ _STDOUT_ASM_HEADER = (
 _CSV_HEADER = """evil_{}
 cycle,pc,ir,state,bus,mdr,mar,n,z,p,r0,r1,r2,r3,r4,r5,r6,r7"""
 
+_RDUMP_HDR = (
+    "Current register/bus values :\n"
+    "-------------------------------------\n")
+
 
 class TestCase:
     """Test Case class
@@ -68,7 +72,7 @@ class TestCase:
         # Run target
         self.cmd = cmd
         output = subprocess.check_output(
-            cmd, shell=True).decode('utf-8').split('\n\n\n')[1:]
+            cmd, shell=True).decode('utf-8').split(_RDUMP_HDR)[1:]
 
         # Parse target
         self.result = []

@@ -65,15 +65,15 @@ class Rdump:
                 block.remove(b)
 
         self.__init_dict(
-            cycle=int(block[2].split(':')[1]),
-            pc=as_hex(block[3]),
-            ir=as_hex(block[4]),
-            state=as_hex(block[5]),
-            bus=as_hex(block[7]),
-            mdr=as_hex(block[8]),
-            mar=as_hex(block[9]),
-            cc=[x[-1] for x in(block[10].split(':')[1]).split('  ')],
-            registers=[as_hex(block[12 + i]) for i in range(8)],
+            cycle=int(block[0].split(':')[1]),
+            pc=as_hex(block[1]),
+            ir=as_hex(block[2]),
+            state=as_hex(block[3]),
+            bus=as_hex(block[5]),
+            mdr=as_hex(block[6]),
+            mar=as_hex(block[7]),
+            cc=[x[-1] for x in(block[8].split(':')[1]).split('  ')],
+            registers=[as_hex(block[10 + i]) for i in range(8)],
             comments=comments)
 
     def __init_dict(
