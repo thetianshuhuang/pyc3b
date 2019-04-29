@@ -16,7 +16,7 @@ _STDOUT_HEADER = """
        {}
 """
 _STDOUT_ASM_HEADER = (
-    "-{ln:03}-  pc: 0x{pc:04X}  ir: 0x{ir:04X}  src: \"{raw}\"")
+    "--{ln:03}--  pc: 0x{pc:04X}  ir: 0x{ir:04X}  src: \"{raw}\"")
 _CSV_HEADER = """evil_{}
 cycle,pc,ir,state,bus,mdr,mar,n,z,p,r0,r1,r2,r3,r4,r5,r6,r7"""
 _HIDDEN_HEADER = """

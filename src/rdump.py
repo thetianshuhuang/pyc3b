@@ -13,7 +13,7 @@ import print as p
 
 _CSV_FMT = "{},0x{:04X},0x{:04X},{},0x{:04X},0x{:04X},0x{:04X},{},{},{},{}"
 _STDOUT_FMT = (
-    '[{:03}]  pc: 0x{:04X}  ir: 0x{:04X}  st: {:02}  bus: 0x{:04X}  '
+    '[{:05}]  pc: 0x{:04X}  ir: 0x{:04X}  st: {:02}  bus: 0x{:04X}  '
     'mdr: 0x{:04X}  mar: 0x{:04X}  nzp: {}  reg: {}')
 
 
