@@ -41,13 +41,22 @@ Python LC3b Simulator test engine -- for EE460N Lab 2-6 (Yale Patt, UT Austin)
 ```shell
 $ python tester.py [-flags]
 ```
+5. Comments can be passed through to the tester by leading them with a ```#```. DO NOT add other ```printf``` statements (this will mess up the parser). For example:
+```
+printf("# Debug Value: %0.4x\n", debug_variable);
+```
+
 
 ## Flags:
 - ```-c```, ```--csv```: Format output as CSV
 - ```--all```: Run all tests
-- ```--alu```, ```--cc```, ```--jmp```, ```--memory```: Run specific test case
+- ```--alu```, ```--cc```, ```--jmp```, ```--memory```, ```--add```: Run specific test case. **NOTE**: ```--add``` is only supported for labs 4 and 5 (```-4```, ```-5```)
+- ```-3```, ```-4```, ```-5```: Specify target lab; defaults to 3
+- ```--getcmd``` (```-g```): Get command to use with vanilla tool instead of running the tester
+- ```--ins``` (```-i```): Show instructions only (don't elaborate on clocks within each instruction)
+- ```--nc``` (```-c```): Hide comments
+- ```--noint``` (```-n```): Hide ISR (int.asm) (since it takes up ~25k cycles)
 
-***
 
 # Sample Sessions
 ## Assembler

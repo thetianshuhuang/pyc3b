@@ -23,7 +23,7 @@ Flags
 --alu, --cc, --memory, --jmp, --add, --all
     Only run the specified test case
 -3, -4, -5:
-    Specify target lab
+    Specify target lab; defaults to 3
 --getcmd (-g)
     Get command to use with vanilla tool instead of running the tester
 --ins (-i)
@@ -100,7 +100,7 @@ Flags
     Only run the specified test case. NOTE: --add is only supported for labs
     4 and 5
 -3, -4, -5:
-    Specify target lab
+    Specify target lab; defaults to 3
 --getcmd (-g)
     Get command to use with vanilla tool instead of running the tester
 --ins (-i)
