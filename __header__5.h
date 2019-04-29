@@ -4,13 +4,14 @@
 */
 
 #define DEBUG_MODE
+#define DEBUG_PRINT
 #define CYCLES 0
 
 /***************************************************************/
 /*                                                             */
 /*   LC-3b Simulator                                           */
 /*                                                             */
-/*   EE 460N                                                   */
+/*   EE 460N - Lab 5                                           */
 /*   The University of Texas at Austin                         */
 /*                                                             */
 /***************************************************************/
@@ -22,6 +23,7 @@
 /***************************************************************/
 /*                                                             */
 /* Files:  ucode        Microprogram file                      */
+/*         pagetable    page table in LC-3b machine language   */
 /*         isaprogram   LC-3b machine language program file    */
 /*                                                             */
 /***************************************************************/
@@ -83,30 +85,41 @@ enum CS_BITS {
     R_W,
     DATA_SIZE,
     LSHF1,
-
 /* MODIFY: you have to add all your new control signals */
-    // COND
-    COND21, COND20,
-    // SSP
-    LD_SSP,
-    GATE_SSP,
-    // SaveSP
-    LD_SAVESP,
-    GATE_SAVESP,
-    // INV
+    
+    // R6/SSP
+    SWAPSP,
+
+    // MAR/VA
+    VAMUX1, VAMUX0,
+    LD_VA,
+
+    // PTE
+    CLR_R,
+    SET_M,
+    WRITE_FLAG,
+
+    // EXC/INT
     GATE_INTV,
-    CHECK_EXC,
+    CHECK_ALIGN,
+    CHECK_PAGE,
     SET_INVALID,
     CLR_EXC,
+
     // PSR
     LD_PSR,
     GATE_PSR,
     CLR_PRIV,
+
     // STACK
-    STACKMUX,
+    STACK_MUX,
     STACK_ADD,
-    // SPMUX
+
+    // SPMU
     SPMUX,
+
+    // SUBROUTINES
+    JSR1, JSR0,
 
     CONTROL_STORE_BITS
 } CS_BITS;
@@ -143,22 +156,24 @@ int GetR_W(int *x)           { return(x[R_W]); }
 int GetDATA_SIZE(int *x)     { return(x[DATA_SIZE]); } 
 int GetLSHF1(int *x)         { return(x[LSHF1]); }
 
-/* MODIFY: you can add more Get functions for your new control signals */
-int GetCOND2(int *x)         { return((x[COND21] << 1) + x[COND20]); }
-int GetLD_SSP(int *x)        { return(x[LD_SSP]); }
-int GetGATE_SSP(int *x)      { return(x[GATE_SSP]); }
-int GetLD_SAVESP(int *x)     { return(x[LD_SAVESP]); }
-int GetGATE_SAVESP(int *x)   { return(x[GATE_SAVESP]); }
+int GetSWAPSP(int *x)        { return(x[SWAPSP]); }
+int GetVAMUX(int *x)         { return((x[VAMUX1] << 1) + x[VAMUX0]); }
+int GetLD_VA(int *x)         { return(x[LD_VA]); }
+int GetCLR_R(int *x)         { return(x[CLR_R]); }
+int GetSET_M(int *x)         { return(x[SET_M]); }
+int GetWRITE_FLAG(int *x)    { return(x[WRITE_FLAG]); }
 int GetGATE_INTV(int *x)     { return(x[GATE_INTV]); }
-int GetCHECK_EXC(int *x)     { return(x[CHECK_EXC]); }
+int GetCHECK_ALIGN(int *x)   { return(x[CHECK_ALIGN]); }
+int GetCHECK_PAGE(int *x)    { return(x[CHECK_PAGE]); }
 int GetSET_INVALID(int *x)   { return(x[SET_INVALID]); }
-int GetCLR_EXC(int *x)          { return(x[CLR_EXC]); }
+int GetCLR_EXC(int *x)       { return(x[CLR_EXC]); }
 int GetLD_PSR(int *x)        { return(x[LD_PSR]); }
 int GetGATE_PSR(int *x)      { return(x[GATE_PSR]); }
 int GetCLR_PRIV(int *x)      { return(x[CLR_PRIV]); }
-int GetSTACKMUX(int *x)      { return(x[STACKMUX]); }
+int GetSTACK_MUX(int *x)     { return(x[STACK_MUX]); }
 int GetSTACK_ADD(int *x)     { return(x[STACK_ADD]); }
-int GetSPMUX(int *x)         { return(x[SPMUX]);}
+int GetSPMUX(int *x)         { return(x[SPMUX]); }
+int GetJSR(int *x)           { return((x[JSR1] << 1) + (x[JSR0])); }
 
 /***************************************************************/
 /* The control store rom.                                      */
@@ -174,7 +189,7 @@ int CONTROL_STORE[CONTROL_STORE_ROWS][CONTROL_STORE_BITS];
    the least significant byte of a word. WE1 is used for the most significant 
    byte of a word. */
 
-#define WORDS_IN_MEM    0x08000 
+#define WORDS_IN_MEM    0x2000 /* 32 frames */ 
 #define MEM_CYCLES      5
 int MEMORY[WORDS_IN_MEM][2];
 
@@ -215,16 +230,29 @@ int STATE_NUMBER; /* Current State Number - Provided for debugging */
 int INTV; /* Interrupt vector register */
 int EXCV; /* Exception vector register */
 int SSP; /* Initial value of system stack pointer */
+/* MODIFY: you should add here any other registers you need to implement interrupts and exceptions */
+int LR;
+int PRIV;
 
-/* MODIFY: You may add system latches that are required by your implementation */
-int PRIV; /* Privilege bit (bit 15) */
-int SAVESP;
+/* For lab 5 */
+int PTBR; /* This is initialized when we load the page table */
+int VA;   /* Temporary VA register */
+int WRITE_FLAG;
+/* MODIFY: you should add here any other registers you need to implement virtual memory */
+
+
 
 } System_Latches;
 
 /* Data Structure for Latch */
 
 System_Latches CURRENT_LATCHES, NEXT_LATCHES;
+
+/* For lab 5 */
+#define PAGE_NUM_BITS 9
+#define PTE_PFN_MASK 0x3E00
+#define PTE_VALID_MASK 0x0004
+#define PAGE_OFFSET_MASK 0x1FF
 
 /***************************************************************/
 /* A cycle counter.                                            */
@@ -516,9 +544,9 @@ void init_memory() {
 /* Purpose   : Load program and service routines into mem.    */
 /*                                                            */
 /**************************************************************/
-void load_program(char *program_filename) {                   
+void load_program(char *program_filename, int is_virtual_base) {                   
     FILE * prog;
-    int ii, word, program_base;
+    int ii, word, program_base, pte, virtual_pc;
 
     /* Open program file. */
     prog = fopen(program_filename, "r");
@@ -535,6 +563,32 @@ void load_program(char *program_filename) {
     exit(-1);
     }
 
+    if (is_virtual_base) {
+      if (CURRENT_LATCHES.PTBR == 0) {
+    printf("Error: Page table base not loaded %s\n", program_filename);
+    exit(-1);
+      }
+
+      /* convert virtual_base to physical_base */
+      virtual_pc = program_base << 1;
+      pte = (MEMORY[(CURRENT_LATCHES.PTBR + (((program_base << 1) >> PAGE_NUM_BITS) << 1)) >> 1][1] << 8) | 
+         MEMORY[(CURRENT_LATCHES.PTBR + (((program_base << 1) >> PAGE_NUM_BITS) << 1)) >> 1][0];
+
+      printf("virtual base of program: %04x\npte: %04x\n", program_base << 1, pte);
+        if ((pte & PTE_VALID_MASK) == PTE_VALID_MASK) {
+          program_base = (pte & PTE_PFN_MASK) | ((program_base << 1) & PAGE_OFFSET_MASK);
+       printf("physical base of program: %x\n\n", program_base);
+          program_base = program_base >> 1; 
+        } else {
+       printf("attempting to load a program into an invalid (non-resident) page\n\n");
+            exit(-1);
+        }
+    }
+    else {
+      /* is page table */
+     CURRENT_LATCHES.PTBR = program_base << 1;
+    }
+
     ii = 0;
     while (fscanf(prog, "%x\n", &word) != EOF) {
     /* Make sure it fits. */
@@ -546,11 +600,12 @@ void load_program(char *program_filename) {
 
     /* Write the word to memory array. */
     MEMORY[program_base + ii][0] = word & 0x00FF;
-    MEMORY[program_base + ii][1] = (word >> 8) & 0x00FF;
+    MEMORY[program_base + ii][1] = (word >> 8) & 0x00FF;;
     ii++;
     }
 
-    if (CURRENT_LATCHES.PC == 0) CURRENT_LATCHES.PC = (program_base << 1);
+    if (CURRENT_LATCHES.PC == 0 && is_virtual_base) 
+      CURRENT_LATCHES.PC = virtual_pc;
 
     printf("Read %d words from program into memory.\n\n", ii);
 }
@@ -560,7 +615,7 @@ void load_program(char *program_filename) {
 /* Procedure : initialize                                      */
 /*                                                             */
 /* Purpose   : Load microprogram and machine language program  */ 
-/*             and set up initial state of the machine.        */
+/*             and set up initial state of the machine         */
 /*                                                             */
 /***************************************************************/
 void initialize(char *argv[], int num_prog_files) { 
@@ -568,17 +623,16 @@ void initialize(char *argv[], int num_prog_files) {
     init_control_store(argv[1]);
 
     init_memory();
+    load_program(argv[2],0);
     for ( i = 0; i < num_prog_files; i++ ) {
-    load_program(argv[i + 2]);
+    load_program(argv[i + 3],1);
     }
     CURRENT_LATCHES.Z = 1;
     CURRENT_LATCHES.STATE_NUMBER = INITIAL_STATE_NUMBER;
     memcpy(CURRENT_LATCHES.MICROINSTRUCTION, CONTROL_STORE[INITIAL_STATE_NUMBER], sizeof(int)*CONTROL_STORE_BITS);
     CURRENT_LATCHES.SSP = 0x3000; /* Initial value of system stack pointer */
 
-    // Addition: initialize INTV and EXCV to 0, set PSR to 1 (user mode)
-    CURRENT_LATCHES.INTV = 0;
-    CURRENT_LATCHES.EXCV = 0;
+/* MODIFY: you can add more initialization code HERE */
     CURRENT_LATCHES.PRIV = 1;
 
     NEXT_LATCHES = CURRENT_LATCHES;
@@ -595,15 +649,15 @@ int main(int argc, char *argv[]) {
     FILE * dumpsim_file;
 
     /* Error Checking */
-    if (argc < 3) {
-    printf("Error: usage: %s <micro_code_file> <program_file_1> <program_file_2> ...\n",
+    if (argc < 4) {
+    printf("Error: usage: %s <micro_code_file> <page table file> <program_file_1> <program_file_2> ...\n",
            argv[0]);
     exit(1);
     }
 
     printf("LC-3b Simulator\n\n");
 
-    initialize(argv, argc - 2);
+    initialize(argv, argc - 3);
 
     if ( (dumpsim_file = fopen( "dumpsim", "w" )) == NULL ) {
     printf("Error: Can't open dumpsim file\n");
@@ -612,13 +666,13 @@ int main(int argc, char *argv[]) {
 
     #ifdef DEBUG_MODE
     if(CYCLES == 0) {
-        while(CURRENT_LATCHES.IR != 0xF025) {
+        while(RUN_BIT) {
             rdump(dumpsim_file);
             run(1);
         }
     }
     else {
-        for(int i = 0; i < CYCLES; i++) {
+        for(int i = 0; (i < CYCLES) && RUN_BIT; i++) {
             rdump(dumpsim_file);
             run(1);
         }
@@ -632,9 +686,6 @@ int main(int argc, char *argv[]) {
 /***************************************************************/
 /* Do not modify the above code, except for the places indicated 
    with a "MODIFY:" comment.
-
-   Do not modify the rdump and mdump functions.
-
    You are allowed to use the following global variables in your
    code. These are defined above.
 
