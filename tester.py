@@ -18,14 +18,20 @@ The source microcode file should be named 'ucode3'.
 
 Flags
 -----
--c / --csv
+--csv (-c)
     Use CSV output instead (echos to stdout -- must pipe)
 --alu, --cc, --memory, --jmp, --add, --all
     Only run the specified test case
 -3, -4, -5:
     Specify target lab
---getcmd
+--getcmd (-g)
     Get command to use with vanilla tool instead of running the tester
+--ins (-i)
+    Show instructions only (don't elaborate on clocks within each instruction)
+--nc (-c)
+    Hide comments
+--noint (-n)
+    Hide ISR (int.asm) (since it takes up ~25k cycles)
 """
 
 import sys
@@ -88,14 +94,21 @@ The source microcode file should be named 'ucode3'.
 
 Flags
 -----
--c / --csv
+--csv (-c)
     Use CSV output instead (echos to stdout -- must pipe)
 --alu, --cc, --memory, --jmp, --add, --all
-    Only run the specified test case
+    Only run the specified test case. NOTE: --add is only supported for labs
+    4 and 5
 -3, -4, -5:
     Specify target lab
---getcmd
+--getcmd (-g)
     Get command to use with vanilla tool instead of running the tester
+--ins (-i)
+    Show instructions only (don't elaborate on clocks within each instruction)
+--nc (-c)
+    Hide comments
+--noint (-n)
+    Hide ISR (int.asm) (since it takes up ~25k cycles)
 
 """
 
@@ -168,11 +181,20 @@ def test(e, lab=4):
         else:
             tgt = _SRC_PATH.format(evil)
 
-    if p.argparse.is_flag('getcmd'):
+    if p.argparse.is_flag('getcmd') or p.argparse.is_flag('g'):
         print(__CMD_DISP.format(cmd))
 
     else:
-        t = TestCase(name=e, tgt=tgt, cmd=cmd, tmpfile=_OBJ_TMP_FILE)
+        hide_range = (
+            [0x1200, 0x1400] if
+            (p.argparse.is_flag('noint') or p.argparse.is_flag('n'))
+            else [0, 0])
+
+        t = TestCase(
+            name=e, tgt=tgt, cmd=cmd, tmpfile=_OBJ_TMP_FILE,
+            hide_range=hide_range,
+            ins_only=p.argparse.is_flag('ins') or p.argparse.is_flag('i'),
+            nocomment=p.argparse.is_flag('nc') or p.argparse.is_flag('c'))
 
         if p.argparse.is_flag('csv'):
             t.csv()

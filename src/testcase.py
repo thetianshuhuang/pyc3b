@@ -19,6 +19,10 @@ _STDOUT_ASM_HEADER = (
     "-{ln:03}-  pc: 0x{pc:04X}  ir: 0x{ir:04X}  src: \"{raw}\"")
 _CSV_HEADER = """evil_{}
 cycle,pc,ir,state,bus,mdr,mar,n,z,p,r0,r1,r2,r3,r4,r5,r6,r7"""
+_HIDDEN_HEADER = """
+    <<< OUTPUT HIDDEN >>>
+
+"""
 
 _RDUMP_HDR = (
     "Current register/bus values :\n"
@@ -62,7 +66,13 @@ class TestCase:
 
     def __init__(
             self, name="alu", tgt="evil/alu_alu.asm",
-            cmd="./a.out ucode3 __tmp__.obj", tmpfile="__tmp__.obj"):
+            cmd="./a.out ucode3 __tmp__.obj", tmpfile="__tmp__.obj",
+            hide_range=[0, 0], ins_only=False, nocomment=True):
+
+        # Settings
+        self.hide_range = hide_range
+        self.ins_only = ins_only
+        self.nocomment = nocomment
 
         # Assemble target
         self.name = name
@@ -82,30 +92,40 @@ class TestCase:
             else:
                 self.result.append(Rdump(s, self.result[-1]))
 
+    def __print_line(self, i):
+        if i.state in [18, 19]:
+            try:
+                ins = self.__get_ins(i.pc)
+                p.print(
+                    _STDOUT_ASM_HEADER.format(
+                        ln=ins.linenum,
+                        pc=ins.address,
+                        ir=ins.assembled,
+                        op=ins.opcode,
+                        raw=ins.raw),
+                    p.BOLD, p.BR + p.BLUE)
+            except Exception as e:
+                p.print(
+                    "Could not find instruction. Is this instruction in "
+                    "the target assembly file?",
+                    p.BOLD, p.BR + p.BLACK)
+
+        if i.state in [18, 19] or not self.ins_only:
+            print(i.str_color(nocomment=self.nocomment))
+
     def print(self):
         """Print test case output to stdout"""
 
         print(_STDOUT_HEADER.format(self.name, self.cmd))
 
-        line_idx = 0
+        in_hiding = False
         for i in self.result:
-            if i.state in [18, 19]:
-                try:
-                    ins = self.__get_ins(i.pc)
-                    p.print(
-                        _STDOUT_ASM_HEADER.format(
-                            ln=ins.linenum,
-                            pc=ins.address,
-                            ir=ins.assembled,
-                            op=ins.opcode,
-                            raw=ins.raw),
-                        p.BOLD, p.BR + p.BLUE)
-                except Exception as e:
-                    p.print(
-                        "Could not find instruction. Is this instruction in "
-                        "the target assembly file?",
-                        p.BOLD, p.BR + p.BLACK)
-            print(i.str_color())
+            if self.hide_range[0] < i.pc and i.pc < self.hide_range[1]:
+                if not in_hiding:
+                    in_hiding = True
+                    p.print(_HIDDEN_HEADER)
+            else:
+                self.__print_line(i)
 
     def csv(self):
         """Print test case output to stdout, formatted as csv"""

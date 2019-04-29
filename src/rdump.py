@@ -108,7 +108,7 @@ class Rdump:
             ''.join(self.cc),
             ' '.join("{:04X}".format(i) for i in self.registers))
 
-    def str_color(self):
+    def str_color(self, nocomment=False):
         """Color output based on difference to previous cycle"""
 
         if self.prev is None:
@@ -120,6 +120,9 @@ class Rdump:
         base = ' '.join([
             p.render(i, p.BR + p.GREEN, p.BOLD)
             if i != j else i for i, j in zip(current, prev)])
+
+        if nocomment:
+            self.comments = []
 
         return '\n'.join(
             [base] +
