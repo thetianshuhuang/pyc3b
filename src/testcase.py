@@ -20,13 +20,23 @@ _STDOUT_ASM_HEADER = (
 _CSV_HEADER = """evil_{}
 cycle,pc,ir,state,bus,mdr,mar,n,z,p,r0,r1,r2,r3,r4,r5,r6,r7"""
 _HIDDEN_HEADER = """
-    <<< OUTPUT HIDDEN >>>
+    [output hidden : PC in {}]
 
 """
-
 _RDUMP_HDR = (
     "Current register/bus values :\n"
     "-------------------------------------\n")
+_ISRS = {
+    0x1200: "TIMER ISR",
+    0x1400: "PAGE FAULT",
+    0x1600: "PROTECTION EXCEPTION",
+    0x1A00: "UNALIGNED ACCESS",
+    0x1C00: "UNKNOWN OPCODE"
+}
+_ISR_HEADER = """
+    <<< {} >>>
+
+"""
 
 
 class TestCase:
@@ -94,6 +104,10 @@ class TestCase:
 
     def __print_line(self, i):
         if i.state in [18, 19]:
+
+            if i.pc in _ISRS:
+                p.print(_ISR_HEADER.format(_ISRS[i.pc]), p.BOLD, p.RED)
+
             try:
                 ins = self.__get_ins(i.pc)
                 p.print(
@@ -123,7 +137,7 @@ class TestCase:
             if self.hide_range[0] < i.pc and i.pc < self.hide_range[1]:
                 if not in_hiding:
                     in_hiding = True
-                    p.print(_HIDDEN_HEADER)
+                    p.print(_HIDDEN_HEADER.format(self.hide_range))
             else:
                 self.__print_line(i)
 
